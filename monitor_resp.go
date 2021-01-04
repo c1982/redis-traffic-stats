@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/google/gopacket/layers"
@@ -13,9 +12,7 @@ var (
 )
 
 func monitorRespPackets() {
-
 	tcpchan = make(chan *layers.TCP, 100)
-
 	duratios = &Durations{
 		m:    sync.Mutex{},
 		list: map[uint32]int64{},
@@ -35,5 +32,8 @@ func processRespPacket(payload []byte) {
 		return
 	}
 	commandCount.WithLabelValues(rsp.Command()).Inc()
-	fmt.Printf("cmd: %s\n", rsp.Command())
+	commandCountDetail.WithLabelValues(rsp.Command(), rsp.Args()).Inc()
+	commandTraffic.WithLabelValues(rsp.Command()).Observe(rsp.Size())
+	commandTrafficDetail.WithLabelValues(rsp.Command(), rsp.Args()).Observe(rsp.Size())
+	//TODO: slowCommands
 }

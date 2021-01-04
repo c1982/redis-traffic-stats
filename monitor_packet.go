@@ -11,7 +11,6 @@ import (
 
 //StartMonitor monitor redis packet destination or source port
 func StartMonitor(devicename string, redisport uint16) error {
-
 	bpffilter := fmt.Sprintf("dst port %d", redisport)
 	handle, err := pcap.OpenLive(devicename, 65535, false, -1*time.Second)
 	if err != nil {
@@ -19,6 +18,7 @@ func StartMonitor(devicename string, redisport uint16) error {
 	}
 	defer handle.Close()
 	handle.SetBPFFilter(bpffilter)
+
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 
 	for packet := range packetSource.Packets() {

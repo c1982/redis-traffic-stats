@@ -13,10 +13,29 @@ var (
 		Name: "redis_traffic_stats_command_count",
 		Help: "The total number of redis commands",
 	}, []string{"command"})
+
+	commandTraffic = promauto.NewSummaryVec(prometheus.SummaryOpts{
+		Name: "redis_traffic_stats_command_traffic",
+		Help: "The total number of redis traffic bytes",
+	}, []string{"command"})
+
+	commandCountDetail = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "redis_traffic_stats_command_detail_count",
+		Help: "The total number of redis commands detail count",
+	}, []string{"command", "args"})
+
+	commandTrafficDetail = promauto.NewSummaryVec(prometheus.SummaryOpts{
+		Name: "redis_traffic_stats_command_traffic",
+		Help: "The total number of redis traffic bytes",
+	}, []string{"command", "args"})
+
+	slowCommands = promauto.NewSummaryVec(prometheus.SummaryOpts{
+		Name: "redis_traffic_stats_slow_commands",
+		Help: "The total number of redis traffic nanosecond",
+	}, []string{"command", "args"})
 )
 
 func exportPrometheusMetrics(addr, username, password string) {
-
 	basicauth := func(f http.Handler) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
@@ -41,10 +60,4 @@ func exportPrometheusMetrics(addr, username, password string) {
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		panic(err)
 	}
-}
-
-func middlewareOne(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r)
-	})
 }

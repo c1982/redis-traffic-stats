@@ -35,10 +35,14 @@ func NewRespReader(payload []byte) (*RespReader, error) {
 }
 
 //parse basic RESP parser for my case.
-//I use unsafe pointer for string conversion because i need to lower memory allocation.
+//I use unsafe pointer for string conversion because I need to lower memory allocation.
 func (c *RespReader) parse() error {
+	if c.payload == nil {
+		return errors.New("payload is nil")
+	}
+
 	if len(c.payload) < 1 {
-		return errors.New("empty data")
+		return errors.New("payload is empty")
 	}
 
 	pp := bytes.Split(c.payload, []byte{'\r', '\n'})
@@ -85,8 +89,8 @@ func (c *RespReader) Args() string {
 }
 
 //Size RESP size of the command
-func (c *RespReader) Size() int {
-	return len(c.payload)
+func (c *RespReader) Size() float64 {
+	return float64(len(c.payload))
 }
 
 func (c *RespReader) String() string {
