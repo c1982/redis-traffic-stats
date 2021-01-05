@@ -56,12 +56,17 @@ func (c *RespReader) parse() error {
 			}
 		}
 
-		if len(argsindex) >= 1 {
-			c.command = *(*string)(unsafe.Pointer(&pp[argsindex[0]]))
+		if len(argsindex) > 0 {
+			if argsindex[0] < len(pp) {
+				c.command = *(*string)(unsafe.Pointer(&pp[argsindex[0]]))
+			}
 		}
 
 		if len(argsindex) > 1 {
 			for i := 1; i < len(argsindex); i++ {
+				if argsindex[i] >= len(pp) {
+					continue
+				}
 				c.args += *(*string)(unsafe.Pointer(&pp[argsindex[i]]))
 				if i < len(argsindex)-1 {
 					c.args += " "
@@ -95,6 +100,10 @@ func (c *RespReader) Size() float64 {
 
 func (c *RespReader) String() string {
 	return c.str
+}
+
+func (c *RespReader) Integer() int64 {
+	return c.integer
 }
 
 //Type returns the RESP command or response type

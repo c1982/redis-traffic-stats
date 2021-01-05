@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -25,7 +26,7 @@ var (
 	}, []string{"command", "args"})
 
 	commandTrafficDetail = promauto.NewSummaryVec(prometheus.SummaryOpts{
-		Name: "redis_traffic_stats_command_traffic",
+		Name: "redis_traffic_stats_command_detail_traffic",
 		Help: "The total number of redis traffic bytes",
 	}, []string{"command", "args"})
 
@@ -43,11 +44,13 @@ func exportPrometheusMetrics(addr, username, password string) {
 			user, pass, _ := r.BasicAuth()
 			if user != username {
 				http.Error(w, "Unauthorized.", 401)
+				log.Warn().Str("client_ip", r.RemoteAddr).Msg("unauthorized request")
 				return
 			}
 
 			if pass != password {
 				http.Error(w, "Unauthorized.", 401)
+				log.Warn().Str("client_ip", r.RemoteAddr).Msg("unauthorized request")
 				return
 			}
 
