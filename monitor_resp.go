@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync"
+	"time"
 
 	"github.com/google/gopacket/layers"
 	"github.com/rs/zerolog/log"
@@ -20,6 +21,13 @@ func monitorRespPackets(redisport uint) {
 		m:    sync.Mutex{},
 		list: map[uint32]int64{},
 	}
+
+	go func() {
+		for range time.Tick(time.Second * 15) {
+			log.Debug().Msg("collect reulsts")
+			collectResults()
+		}
+	}()
 
 	for {
 		select {
@@ -46,6 +54,19 @@ func processRespPacket(payload []byte) {
 		Float64("size", rsp.Size()).
 		Msg("received")
 
+	//TODO: implement slow response and traffics
 	results.Add(rsp.Command(), rsp.Args(), rsp.Size())
-	//TODO: slowCommands
+}
+
+func collectResults() {
+	for _, command := range results.Commands() {
+		stats := results.calculateCommandStats(command)
+		commandCount.WithLabelValues(command).Add(float64(stats.Count))
+
+		for _, arg := range stats.Arguments {
+			commandCountDetail.WithLabelValues(command, arg.Argument).Add(float64(arg.Count))
+		}
+
+		results.Clear(command)
+	}
 }

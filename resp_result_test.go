@@ -70,6 +70,22 @@ func Test_RespResult(t *testing.T) {
 			t.Errorf("common keys count error. expect: %d, got: %d", len(d.ExpectCommonKeys), len(stats.Arguments))
 			t.Logf("common keys: %+v (%s)", stats.Arguments, d.Cmd)
 		}
+
+		for x := 0; x < len(d.ExpectCommonKeys); x++ {
+			ekey := d.ExpectCommonKeys[x]
+			ok := func(e string) bool {
+				for y := 0; y < len(stats.Arguments); y++ {
+					if e == stats.Arguments[y].Argument {
+						return true
+					}
+				}
+				return false
+			}(ekey)
+
+			if !ok {
+				t.Errorf("expected key not found. expected: %s", ekey)
+			}
+		}
 	}
 
 }

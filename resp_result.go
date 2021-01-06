@@ -34,6 +34,7 @@ func NewRespResult() *RespResult {
 	}
 }
 
+//Add save commans stats
 func (r *RespResult) Add(command string, args string, size float64) {
 	argslist, ok := r.arguments[command]
 	if !ok {
@@ -42,6 +43,17 @@ func (r *RespResult) Add(command string, args string, size float64) {
 	r.arguments[command] = append(argslist, args)
 	r.counts[command] = r.counts[command] + 1
 	r.sizes[command] = r.sizes[command] + size
+}
+
+//Commands export all commands as slice
+func (r *RespResult) Commands() (list []string) {
+
+	list = make([]string, 0, len(r.counts))
+	for command := range r.counts {
+		list = append(list, command)
+	}
+
+	return list
 }
 
 //Clear clear arguments of the command
