@@ -14,7 +14,8 @@ var (
 		{"*2\r\n$4\r\nping\r\n$2\r\nok", "ping", "ok"},
 		{"*1\r\n$4\r\nping\r\n", "ping", ""},
 		{"*3\r\n$5\r\nRPUSH\r\n$6\r\nmylist\r\n$3\r\none\r\n", "RPUSH", "mylist one"},
-		{"*4\r\n\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n", "LRANGE", "mylist 0 599"},
+		{"*4\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n", "LRANGE", "mylist 0 599"},
+		{"*4\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733\r\n$3\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733XXXXXXX\r\n", "LRANGE", "mylist 2a340d0a24340d0a485345540d0a2435340d0a75736572733 2a340d0a24340d0a485345540d0a2435340d0a75736572733"},
 	}
 )
 

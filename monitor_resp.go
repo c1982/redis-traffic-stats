@@ -10,9 +10,11 @@ import (
 var (
 	duratios *Durations
 	tcpchan  chan *layers.TCP
+	results  *RespResult
 )
 
-func monitorRespPackets() {
+func monitorRespPackets(redisport uint) {
+	results = NewRespResult()
 	tcpchan = make(chan *layers.TCP, 100)
 	duratios = &Durations{
 		m:    sync.Mutex{},
@@ -22,7 +24,11 @@ func monitorRespPackets() {
 	for {
 		select {
 		case packet := <-tcpchan:
-			processRespPacket(packet.Payload)
+			if packet.SrcPort == layers.TCPPort(redisport) { //redis response
+				//TODO: handle response
+			} else if packet.DstPort == layers.TCPPort(redisport) { //redis request
+				processRespPacket(packet.Payload)
+			}
 		}
 	}
 }
@@ -34,16 +40,12 @@ func processRespPacket(payload []byte) {
 		return
 	}
 
+	log.Debug().Hex("payload", payload).Msg("payload")
 	log.Debug().Str("command", rsp.Command()).
 		Str("args", rsp.Args()).
 		Float64("size", rsp.Size()).
-		Str("string", rsp.String()).
-		Int64("integer", rsp.Integer()).
 		Msg("received")
 
-	commandCount.WithLabelValues(rsp.Command()).Inc()
-	commandCountDetail.WithLabelValues(rsp.Command(), rsp.Args()).Inc()
-	commandTraffic.WithLabelValues(rsp.Command()).Observe(rsp.Size())
-	commandTrafficDetail.WithLabelValues(rsp.Command(), rsp.Args()).Observe(rsp.Size())
+	results.Add(rsp.Command(), rsp.Args(), rsp.Size())
 	//TODO: slowCommands
 }

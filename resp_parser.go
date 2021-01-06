@@ -13,6 +13,8 @@ const (
 	TypeArray
 	TypeError
 	TypeUnknown
+
+	MaxCommandArgsSize = 50
 )
 
 //RespReader presents RESP packges from ethernet.
@@ -62,22 +64,15 @@ func (c *RespReader) parse() error {
 			}
 		}
 
-		if len(argsindex) > 1 {
-			for i := 1; i < len(argsindex); i++ {
-				if argsindex[i] >= len(pp) {
-					continue
-				}
-				c.args += *(*string)(unsafe.Pointer(&pp[argsindex[i]]))
-				if i < len(argsindex)-1 {
-					c.args += " "
-				}
+		if len(argsindex) >= 1 {
+			if len(pp[argsindex[1]]) > MaxCommandArgsSize {
+				capturefirst50 := pp[argsindex[1]][0 : MaxCommandArgsSize-1]
+				c.args = *(*string)(unsafe.Pointer(&capturefirst50))
+			} else {
+				c.args = *(*string)(unsafe.Pointer(&pp[argsindex[1]]))
 			}
 		}
-	case TypeString, TypeError, TypeBulkString:
-		strpayload := pp[0][1:len(pp[0])]
-		c.str = *(*string)(unsafe.Pointer(&strpayload))
-	case TypeInteger:
-		c.integer = 0 //oğuzhan: does not require integer value my case
+	case TypeString, TypeError, TypeBulkString, TypeInteger: //does not require
 	}
 
 	return nil
@@ -96,14 +91,6 @@ func (c *RespReader) Args() string {
 //Size RESP size of the command
 func (c *RespReader) Size() float64 {
 	return float64(len(c.payload))
-}
-
-func (c *RespReader) String() string {
-	return c.str
-}
-
-func (c *RespReader) Integer() int64 {
-	return c.integer
 }
 
 //Type returns the RESP command or response type
