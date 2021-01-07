@@ -14,13 +14,6 @@ const (
 	TypeArray
 	TypeError
 	TypeUnknown
-
-	MaxCommandArgsSize = 50
-)
-
-var (
-
-//removedMatch = regexp.MustCompile(`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`)
 )
 
 //RespReader presents RESP packges from ethernet.
@@ -32,17 +25,17 @@ type RespReader struct {
 }
 
 //NewRespReader create a RESP object on the app
-func NewRespReader(payload, sep []byte, cleaner *regexp.Regexp) (*RespReader, error) {
+func NewRespReader(payload, sep []byte, cleaner *regexp.Regexp, size int) (*RespReader, error) {
 	r := &RespReader{
 		payload: payload,
 	}
-	err := r.parse(sep, cleaner)
+	err := r.parse(sep, cleaner, size)
 	return r, err
 }
 
 //parse basic RESP parser for my case.
 //I use unsafe pointer for string conversion because I need to lower memory allocation.
-func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp) error {
+func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) error {
 	if c.payload == nil {
 		return errors.New("payload is nil")
 	}
@@ -70,8 +63,8 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp) error {
 
 		if len(argsindex) >= 1 {
 			first := pp[argsindex[1]]
-			if len(first) > MaxCommandArgsSize {
-				first = pp[argsindex[1]][0 : MaxCommandArgsSize-1]
+			if len(first) > maxsize {
+				first = pp[argsindex[1]][0 : maxsize-1]
 			}
 
 			if len(sep) > 0 {

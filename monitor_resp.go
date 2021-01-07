@@ -12,7 +12,7 @@ var (
 	tcpchan  chan *layers.TCP
 )
 
-func monitorRespPackets(redisport uint, sep, cleaner string) {
+func monitorRespPackets(redisport uint, sep, cleaner string, maxkeysize int) {
 	var (
 		separator []byte
 		cleanerxp *regexp.Regexp
@@ -34,14 +34,14 @@ func monitorRespPackets(redisport uint, sep, cleaner string) {
 			if packet.SrcPort == layers.TCPPort(redisport) { //redis response
 				//TODO: handle response
 			} else if packet.DstPort == layers.TCPPort(redisport) { //redis request
-				processRespPacket(packet.Payload, separator, cleanerxp)
+				processRespPacket(packet.Payload, separator, cleanerxp, maxkeysize)
 			}
 		}
 	}
 }
 
-func processRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp) {
-	rsp, err := NewRespReader(payload, sep, cleaner)
+func processRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp, maxkeysize int) {
+	rsp, err := NewRespReader(payload, sep, cleaner, maxkeysize)
 	if err != nil {
 		log.Debug().Caller().Hex("payload", payload).Err(err).Msg("parse error")
 		return

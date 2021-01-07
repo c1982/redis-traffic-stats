@@ -5,7 +5,7 @@
 
 ## Usage
 
->./redis-traffic-stats --interface=ens5 --addr=:9200 --password=pass --debug=false
+>./redis-traffic-stats --interface=ens5 --addr=:9200 --password=pass --debug=false -s=: -r="[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}"
 
 Parameters | Default | Desc
 --- | --- | ---

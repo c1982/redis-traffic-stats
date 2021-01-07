@@ -16,6 +16,7 @@ func main() {
 		exporterpassword = flag.String("password", "pass", "prometheus exporter password")
 		keyseparator     = flag.String("s", "", "separator of key. If is this empty, can not works this logic")
 		keycleanerregex  = flag.String("r", "", "cleans all regex match in the key")
+		maxkeysizenumber = flag.Int("max", 50, "")
 	)
 
 	flag.Parse()
@@ -33,7 +34,7 @@ func main() {
 		Str("username", *exporterusername).
 		Msg("redis monitoring started")
 
-	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex)
+	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex, *maxkeysizenumber)
 	go exportPrometheusMetrics(*exporteraddr, *exporterusername, *exporterpassword)
 
 	if err := StartMonitor(*devicename, uint16(*redisport)); err != nil {
