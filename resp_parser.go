@@ -79,7 +79,7 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 			c.args = *(*string)(unsafe.Pointer(&first))
 		}
 	default:
-		return errors.New("unsuported type")
+		return errors.New("unsupported type")
 	}
 
 	return nil
