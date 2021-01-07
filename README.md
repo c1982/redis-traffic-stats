@@ -1,5 +1,6 @@
 # redis-traffic-stats
 
+![](./screen_shot.png)
 ### Installation
 
 ## Usage

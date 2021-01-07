@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
-	"fmt"
 	"regexp"
 	"testing"
 )
