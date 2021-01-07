@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"regexp"
 	"unsafe"
 )
 
@@ -17,14 +18,17 @@ const (
 	MaxCommandArgsSize = 50
 )
 
+var (
+	argsSep      = []byte{':'}
+	removedMatch = regexp.MustCompile(`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`)
+)
+
 //RespReader presents RESP packges from ethernet.
 type RespReader struct {
 	payload []byte
 	command string
 	args    string
 	size    int
-	str     string
-	integer int64
 }
 
 //NewRespReader create a RESP object on the app
@@ -65,17 +69,29 @@ func (c *RespReader) parse() error {
 		}
 
 		if len(argsindex) >= 1 {
-			if len(pp[argsindex[1]]) > MaxCommandArgsSize {
-				capturefirst50 := pp[argsindex[1]][0 : MaxCommandArgsSize-1]
-				c.args = *(*string)(unsafe.Pointer(&capturefirst50))
-			} else {
-				c.args = *(*string)(unsafe.Pointer(&pp[argsindex[1]]))
+			capturefirst50 := pp[argsindex[1]]
+			if len(capturefirst50) > MaxCommandArgsSize {
+				capturefirst50 = pp[argsindex[1]][0 : MaxCommandArgsSize-1]
 			}
+
+			removed := c.removeLast(capturefirst50, argsSep)
+			cleaned := c.cleanMatched(removed, removedMatch)
+			c.args = *(*string)(unsafe.Pointer(&cleaned))
 		}
 	case TypeString, TypeError, TypeBulkString, TypeInteger: //does not require
 	}
 
 	return nil
+}
+
+func (c *RespReader) removeLast(payload []byte, sep []byte) []byte {
+	explode := bytes.Split(payload, sep)
+	explode = explode[0 : len(explode)-1]
+	return bytes.Join(explode, sep)
+}
+
+func (c *RespReader) cleanMatched(payload []byte, pattern *regexp.Regexp) []byte {
+	return pattern.ReplaceAll(payload, []byte{})
 }
 
 //Command RESP command name

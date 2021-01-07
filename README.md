@@ -5,9 +5,8 @@
 
 ## Usage
 
->./redis-traffic-stats --interface=ens5 --password=p@55w0rd --debug
+>./redis-traffic-stats --interface=ens5 --addr=:9200 --password=pass --debug=false
 
-     
 Parameters | Default | Desc
 --- | --- | ---
 debug | Enable |

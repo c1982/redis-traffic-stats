@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,7 +18,24 @@ var (
 		{"*4\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n", "LRANGE", "mylist 0 599"},
 		{"*4\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733\r\n$3\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733XXXXXXX\r\n", "LRANGE", "mylist 2a340d0a24340d0a485345540d0a2435340d0a75736572733 2a340d0a24340d0a485345540d0a2435340d0a75736572733"},
 	}
+
+	testArgs = []struct {
+		Payload string
+		Cmd     string
+		Args    string
+	}{
+		{"*3\r\n$5\r\nRPUSH\r\n$6\r\nuser:slot:ghost:2a0387c1-b349-459e-af9b-1c220c3ea:chess\r\n$3\r\none\r\n", "RPUSH", "mylist one"},
+	}
 )
+
+func Test_Args(t *testing.T) {
+	cmd, err := NewRespReader([]byte(testArgs[0].Payload))
+	if err != nil {
+		t.Error(err)
+	}
+
+	fmt.Printf("cmd-> %s args-> %s\r\n", cmd.Command(), cmd.Args())
+}
 
 func Test_Parse(t *testing.T) {
 	for _, data := range testDataPayloads {
