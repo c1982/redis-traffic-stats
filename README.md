@@ -1,20 +1,61 @@
 # redis-traffic-stats
 
+`redis-traffic-stats` is a live monitor and analyze RESP packets in your server. This tool does not touch Redis Server.  Just monitors redis client request and response on the real time.
+
+All redis stats exported as prometheus metrics so you can visualize analytics data on your favorite dashboard (like grafana).
+
+Features:
+
+* Live Monitoring
+* Low CPU utilization
+* Prometheus Exporter
+* Basic-Auth protection
+* Top commands of count
+* Top command and keys count
+* No dependencies
+* No Redis performance degradation
+
 ![](./screen_shot.png)
-### Installation
+
+
+### Tasks:
+
+- [x] Count commands and arguments  
+- [] Count network traffic of command
+- [] Monitor Slow commands
+- [] Monitor big response
+
+## Installation
+
+* [redis-traffic-stats Linux x64]() 
 
 ## Usage
 
->./redis-traffic-stats --interface=ens5 --addr=:9200 --password=pass --debug=false -s=: -r="[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}"
+```bash
+./redis-traffic-stats --interface=ens5 --addr=:9200 \
+--password=pass \
+--debug=false \
+-s=: \
+-r="[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}" \
+--redisport:6379 \
+--max=150
+```
 
-Parameters | Default | Desc
+Flag | Default | Usage
 --- | --- | ---
-debug | Enable |
-interface | empty |
-redisport | 6379 | 
-addr | :9200 | 
-username | admin | 
-password | **** |
+debug | false | Enable debug logs
+interface | empty | Ethernet infreface name. eth0, ens5
+redisport | 6379 | Redis server port number
+addr | :9200 | http listener port for prometheus metrics
+username | admin | Prometheus metrics username
+password | **** | Prometheus metrics password
+s | empty | Separator of keys (for split). If it empty does not split keys.
+r | empty | Regex pattern of keys (for clean)
+max | 150 | Maximum lookup size of key. If value -1 unlimited lookup. 
+
+### Grafana Dashboard
+
+This easy way for dasboarding. You can upload to grafana [this](./grafana-dashboard.json) file.
 
 ### Static Compilation
 
@@ -22,7 +63,9 @@ This tool require libpcap library (https://www.tcpdump.org/).
 You can embed dependencies on the compilation process. This helps for portability.
 Check the build command below
 
-> LDFLAGS='-l/usr/lib/libpcap.a' CGO_ENABLED=1 go build -ldflags '-linkmode external -extldflags -static' .
+```bash
+LDFLAGS='-l/usr/lib/libpcap.a' CGO_ENABLED=1 go build -ldflags '-linkmode external -extldflags -static' .
+```
 
 ### Troubleshooting
 
