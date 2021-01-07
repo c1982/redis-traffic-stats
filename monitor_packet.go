@@ -11,7 +11,7 @@ import (
 
 //StartMonitor monitor redis packet destination or source port
 func StartMonitor(devicename string, redisport uint16) error {
-	//TODO: remove dst
+	//TODO: remove dst for request, response
 	bpffilter := fmt.Sprintf("dst tcp port %d", redisport)
 	handle, err := pcap.OpenLive(devicename, 65535, false, -1*time.Second)
 	if err != nil {

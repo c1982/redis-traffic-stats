@@ -44,11 +44,10 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 		return errors.New("payload is empty")
 	}
 
-	pp := bytes.Split(c.payload, []byte{'\r', '\n'})
-	argsindex := []int{}
-
 	switch c.Type() {
 	case TypeArray:
+		pp := bytes.Split(c.payload, []byte{'\r', '\n'})
+		argsindex := []int{}
 		for i := 0; i < len(pp); i++ {
 			if bytes.HasPrefix(pp[i], []byte{'$'}) {
 				argsindex = append(argsindex, i+1)
@@ -72,7 +71,7 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 				first = c.removeLast(first, sep)
 			}
 			if cleaner != nil {
-				first = c.cleanMatched(first, cleaner)
+				first = c.cleanMatched(first, cleaner, sep)
 			}
 			c.args = *(*string)(unsafe.Pointer(&first))
 		}
@@ -87,8 +86,9 @@ func (c *RespReader) removeLast(payload []byte, sep []byte) []byte {
 	return bytes.Join(explode, sep)
 }
 
-func (c *RespReader) cleanMatched(payload []byte, pattern *regexp.Regexp) []byte {
-	return pattern.ReplaceAll(payload, []byte{})
+func (c *RespReader) cleanMatched(payload []byte, pattern *regexp.Regexp, trim []byte) []byte {
+	//TODO: probably ReplaceAll is slow. refactor it.
+	return bytes.TrimSuffix(pattern.ReplaceAll(payload, []byte{}), trim)
 }
 
 //Command RESP command name

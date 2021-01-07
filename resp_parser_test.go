@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"regexp"
 	"testing"
 )
 
 var (
-	testDataPayloads = []struct {
+	_ = []struct {
 		Payload string
 		Cmd     string
 		Args    string
@@ -19,27 +19,28 @@ var (
 		{"*4\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733\r\n$3\r\n2a340d0a24340d0a485345540d0a2435340d0a75736572733XXXXXXX\r\n", "LRANGE", "mylist 2a340d0a24340d0a485345540d0a2435340d0a75736572733 2a340d0a24340d0a485345540d0a2435340d0a75736572733"},
 	}
 
-	testArgs = []struct {
+	testDataPayloads = []struct {
 		Payload string
 		Cmd     string
 		Args    string
+		Sep     []byte
+		Cls     string
+		Size    int
 	}{
-		{"*3\r\n$5\r\nRPUSH\r\n$6\r\nuser:slot:ghost:2a0387c1-b349-459e-af9b-1c220c3ea:chess\r\n$3\r\none\r\n", "RPUSH", "mylist one"},
+		{"*3\r\n$5\r\nRPUSH\r\n$6\r\nuser:slot:ghost:095b314d-8e62-4e6c-abd6-e8a826ace563:chess\r\n$3\r\none\r\n",
+			"RPUSH",
+			"user:slot:ghost",
+			[]byte{':'},
+			`[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`,
+			100,
+		},
 	}
 )
 
-func Test_Args(t *testing.T) {
-	cmd, err := NewRespReader([]byte(testArgs[0].Payload), []byte{}, nil, -1)
-	if err != nil {
-		t.Error(err)
-	}
-
-	fmt.Printf("cmd-> %s args-> %s\r\n", cmd.Command(), cmd.Args())
-}
-
 func Test_Parse(t *testing.T) {
 	for _, data := range testDataPayloads {
-		cmd, err := NewRespReader([]byte(data.Payload), []byte{}, nil, -1)
+		cls := regexp.MustCompile(data.Cls)
+		cmd, err := NewRespReader([]byte(data.Payload), data.Sep, cls, data.Size)
 		if err != nil {
 			t.Error(err)
 		}
@@ -54,8 +55,40 @@ func Test_Parse(t *testing.T) {
 	}
 }
 
-func Benchmark_Parse(b *testing.B) {
+func Test_ParseFomatKey(t *testing.T) {
+
+	testDatas := []struct {
+		Payload string
+		Pattern string
+		Sep     string
+		Expect  string
+	}{
+		{"user:slot:ghost", "slot", ":", "user::ghost"},
+		{"user:slot:095b314d-8e62-4e6c-abd6-e8a826ace563:spagetti", `[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}`, ":", "user:slot::spagetti"},
+	}
+
+	for _, data := range testDatas {
+		rsp := RespReader{payload: []byte(data.Payload)}
+		pattern := regexp.MustCompile(data.Pattern)
+		out := rsp.cleanMatched(rsp.payload, pattern, []byte(data.Sep))
+		outstr := string(out)
+		if outstr != data.Expect {
+			t.Errorf("clean error expect: %s, got: %s", data.Expect, outstr)
+		}
+	}
+}
+
+func Benchmark_ParseWithEmptyOptions(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, _ = NewRespReader([]byte("*4\r\n\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n"), []byte{}, nil, -1)
+	}
+}
+
+func Benchmark_ParseWithOptions(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = NewRespReader([]byte("*4\r\n\r\n$6\r\nLRANGE\r\n$6\r\na:b:5000:dxxxxxxxxxxxxxxxxxxxx\r\n$1\r\n0\r\n$3\r\n599\r\n"),
+			[]byte{':'},
+			nil,
+			20)
 	}
 }

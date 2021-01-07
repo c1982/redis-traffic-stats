@@ -1,6 +1,5 @@
 # redis-traffic-stats
 
-
 ### Installation
 
 ## Usage

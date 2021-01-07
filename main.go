@@ -14,7 +14,7 @@ func main() {
 		exporteraddr     = flag.String("addr", ":9100", "prometheus exporter http listen port")
 		exporterusername = flag.String("username", "admin", "prometheus exporter username")
 		exporterpassword = flag.String("password", "pass", "prometheus exporter password")
-		keyseparator     = flag.String("s", "", "separator of key. If is this empty, can not works this logic")
+		keyseparator     = flag.String("s", "", "separator of key. If is this empty, can not split key name")
 		keycleanerregex  = flag.String("r", "", "cleans all regex match in the key")
 		maxkeysizenumber = flag.Int("max", 50, "-1 unlimited")
 	)

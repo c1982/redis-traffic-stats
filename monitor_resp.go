@@ -56,5 +56,7 @@ func processRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp, maxke
 	commandCount.WithLabelValues(rsp.Command()).Inc()
 	commandCountDetail.WithLabelValues(rsp.Command(), rsp.Args()).Inc()
 
-	//TODO: implement slow response and traffics
+	//TODO: implement bandwidth traffic.
+	//TODO: implement slow response.
+	//TODO: implement slow response details.
 }
