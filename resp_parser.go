@@ -64,13 +64,13 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 		if len(argsindex) >= 1 {
 			first := pp[argsindex[1]]
 			if len(first) > maxsize {
-				first = pp[argsindex[1]][0 : maxsize-1]
+				if maxsize > 0 {
+					first = pp[argsindex[1]][0 : maxsize-1]
+				}
 			}
-
 			if len(sep) > 0 {
 				first = c.removeLast(first, sep)
 			}
-
 			if cleaner != nil {
 				first = c.cleanMatched(first, cleaner)
 			}
