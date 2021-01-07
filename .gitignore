@@ -8,3 +8,4 @@
 vendor/
 go.sum
 redis-traffic-stats
+redis-traffic-stats_linux_amd64

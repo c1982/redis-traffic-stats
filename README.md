@@ -21,13 +21,13 @@ Features:
 ### Tasks:
 
 - [x] Count commands and arguments  
-- [] Count network traffic of command
-- [] Monitor Slow commands
-- [] Monitor big response
+- [ ] Count network traffic of command
+- [ ] Monitor Slow commands
+- [ ] Monitor big response
 
 ## Installation
 
-* [redis-traffic-stats Linux x64]() 
+* [redis-traffic-stats_linux_amd64](https://github.com/c1982/redis-traffic-stats/releases/download/v1.0.0/redis-traffic-stats_linux_amd64) 
 
 ## Usage
 
