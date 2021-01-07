@@ -29,7 +29,7 @@ var (
 )
 
 func Test_Args(t *testing.T) {
-	cmd, err := NewRespReader([]byte(testArgs[0].Payload))
+	cmd, err := NewRespReader([]byte(testArgs[0].Payload), []byte{}, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -39,7 +39,7 @@ func Test_Args(t *testing.T) {
 
 func Test_Parse(t *testing.T) {
 	for _, data := range testDataPayloads {
-		cmd, err := NewRespReader([]byte(data.Payload))
+		cmd, err := NewRespReader([]byte(data.Payload), []byte{}, nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -56,6 +56,6 @@ func Test_Parse(t *testing.T) {
 
 func Benchmark_Parse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, _ = NewRespReader([]byte("*4\r\n\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n"))
+		_, _ = NewRespReader([]byte("*4\r\n\r\n$6\r\nLRANGE\r\n$6\r\nmylist\r\n$1\r\n0\r\n$3\r\n599\r\n"), []byte{}, nil)
 	}
 }

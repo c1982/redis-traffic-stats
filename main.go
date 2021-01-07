@@ -7,12 +7,17 @@ import (
 )
 
 func main() {
-	debugmode := flag.Bool("debug", true, "enabled debug logs")
-	devicename := flag.String("interface", "lo0", "Interface for monitoring")
-	redisport := flag.Uint("redisport", 6379, "redis port number")
-	exporteraddr := flag.String("addr", ":9100", "prometheus exporter http port")
-	exporterusername := flag.String("username", "admin", "prometheus exporter username")
-	exporterpassword := flag.String("password", "pass", "prometheus exporter password")
+	var (
+		debugmode        = flag.Bool("debug", false, "enabled debug logs")
+		devicename       = flag.String("interface", "", "interface for monitoring")
+		redisport        = flag.Uint("redisport", 6379, "redis port number")
+		exporteraddr     = flag.String("addr", ":9100", "prometheus exporter http listen port")
+		exporterusername = flag.String("username", "admin", "prometheus exporter username")
+		exporterpassword = flag.String("password", "pass", "prometheus exporter password")
+		keyseparator     = flag.String("s", "", "separator of key. If is this empty, can not works this logic")
+		keycleanerregex  = flag.String("r", "", "cleans all regex match in the key")
+	)
+
 	flag.Parse()
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
@@ -28,7 +33,7 @@ func main() {
 		Str("username", *exporterusername).
 		Msg("redis monitoring started")
 
-	go monitorRespPackets(*redisport)
+	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex)
 	go exportPrometheusMetrics(*exporteraddr, *exporterusername, *exporterpassword)
 
 	if err := StartMonitor(*devicename, uint16(*redisport)); err != nil {
