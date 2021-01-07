@@ -51,6 +51,9 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 		for i := 0; i < len(pp); i++ {
 			if bytes.HasPrefix(pp[i], []byte{'$'}) {
 				argsindex = append(argsindex, i+1)
+				if len(argsindex) > 2 {
+					break
+				}
 			}
 		}
 
@@ -75,6 +78,8 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 			}
 			c.args = *(*string)(unsafe.Pointer(&first))
 		}
+	default:
+		return errors.New("unsuported type")
 	}
 
 	return nil
@@ -82,6 +87,9 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 
 func (c *RespReader) removeLast(payload []byte, sep []byte) []byte {
 	explode := bytes.Split(payload, sep)
+	if len(explode) < 2 {
+		return payload
+	}
 	explode = explode[0 : len(explode)-1]
 	return bytes.Join(explode, sep)
 }
