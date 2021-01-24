@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync"
+	"time"
 )
 
 //Durations this struct helps for latency
@@ -23,4 +24,23 @@ duratios.m.Unlock()
 type Durations struct {
 	m    sync.Mutex
 	list map[uint32]int64
+}
+
+func (d *Durations) Set(k uint32) {
+	d.m.Lock()
+	defer d.m.Unlock()
+	d.list[k] = time.Now().UnixNano()
+}
+
+func (d *Durations) Get(k uint32) time.Duration {
+	d.m.Lock()
+	defer d.m.Unlock()
+
+	v, ok := d.list[k]
+	if !ok {
+		return -1
+	}
+
+	delete(d.list, k)
+	return time.Nanosecond * time.Duration(time.Now().UnixNano()-v)
 }

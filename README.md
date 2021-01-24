@@ -17,7 +17,6 @@ Features:
 
 ![](./screen_shot.png)
 
-
 ### Tasks:
 
 - [x] Count commands and arguments  
@@ -37,7 +36,7 @@ Features:
 --debug=false \
 -s=: \
 -r="[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}" \
---redisport:6379 \
+--redisport=6379 \
 --max=150
 ```
 
