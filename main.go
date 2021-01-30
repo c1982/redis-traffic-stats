@@ -38,7 +38,7 @@ func main() {
 		Str("username", *exporterusername).
 		Msg("redis monitoring started")
 
-	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex, *maxkeysizenumber)
+	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex, *maxkeysizenumber, *slowresponsethresold, *bigresponsethreshold)
 	go exportPrometheusMetrics(*exporteraddr, *exporterusername, *exporterpassword)
 
 	if err := StartMonitor(*devicename, uint16(*redisport)); err != nil {

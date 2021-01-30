@@ -5,42 +5,35 @@ import (
 	"time"
 )
 
-//Durations this struct helps for latency
-/*
-Durations
-duratios.m.Lock()
-if tcp.SrcPort == redisPort {
-	duration, ok := duratios.list[tcp.Seq]
-	if ok {
-		current := time.Now().UnixNano()
-		latency := current - duration
-		fmt.Printf("seq: %d, latency %s  len: %d\n", tcp.Seq, time.Nanosecond*time.Duration(latency), len(duratios.list))
-		delete(duratios.list, tcp.Seq)
-	}
+type DurationItem struct {
+	Latency int64 //unixnano
+	Command string
+	Args    string
 }
-duratios.list[tcp.Ack] = time.Now().UnixNano()
-duratios.m.Unlock()
-*/
+
+func (d DurationItem) ToLatency() time.Duration {
+	return time.Nanosecond * time.Duration(time.Now().UnixNano()-d.Latency)
+}
+
 type Durations struct {
 	m    sync.Mutex
-	list map[uint32]int64
+	list map[uint32]DurationItem
 }
 
-func (d *Durations) Set(k uint32) {
+func (d *Durations) Set(k uint32, command, args string) {
 	d.m.Lock()
 	defer d.m.Unlock()
-	d.list[k] = time.Now().UnixNano()
+	d.list[k] = DurationItem{time.Now().UnixNano(), command, args}
 }
 
-func (d *Durations) Get(k uint32) time.Duration {
+func (d *Durations) Get(k uint32) (item DurationItem, exist bool) {
 	d.m.Lock()
 	defer d.m.Unlock()
 
-	v, ok := d.list[k]
-	if !ok {
-		return -1
+	item, exist = d.list[k]
+	if !exist {
+		return item, exist
 	}
-
 	delete(d.list, k)
-	return time.Nanosecond * time.Duration(time.Now().UnixNano()-v)
+	return item, true
 }

@@ -13,7 +13,7 @@ var (
 	tcpchan   chan *layers.TCP
 )
 
-func monitorRespPackets(redisport uint, sep, cleaner string, maxkeysize int) {
+func monitorRespPackets(redisport uint, sep, cleaner string, maxkeysize int, slowresponsethresold time.Duration, bigresponsethreshold int) {
 	var (
 		separator []byte
 		cleanerxp *regexp.Regexp
@@ -32,22 +32,35 @@ func monitorRespPackets(redisport uint, sep, cleaner string, maxkeysize int) {
 	for {
 		select {
 		case packet := <-tcpchan:
-			if packet.SrcPort == layers.TCPPort(redisport) { //redis response
-				latency := durations.Get(packet.Seq)
-				processRespPacket(packet.Payload, separator, cleanerxp, maxkeysize, latency)
-			} else if packet.DstPort == layers.TCPPort(redisport) { //redis request
-				processRespPacket(packet.Payload, separator, cleanerxp, maxkeysize, -1)
-				durations.Set(packet.Ack)
+			if packet.SrcPort == layers.TCPPort(redisport) { //response
+				ditem, ok := durations.Get(packet.Seq)
+				if !ok {
+					break
+				}
+				if l := ditem.ToLatency(); l > slowresponsethresold {
+					slowCommands.WithLabelValues(ditem.Command, ditem.Args).Observe(float64(l))
+				}
+				if size := len(packet.Payload); size > bigresponsethreshold {
+					bigCommands.WithLabelValues(ditem.Command, ditem.Args).Observe(float64(size))
+				}
+			} else if packet.DstPort == layers.TCPPort(redisport) { //request
+				rsp, err := parseRespPacket(packet.Payload, separator, cleanerxp, maxkeysize)
+				if err != nil {
+					log.Debug().Caller().Hex("payload", packet.Payload).Err(err).Msg("request parse error")
+					break
+				}
+				durations.Set(packet.Ack, rsp.Command(), rsp.Args())
+				commandCount.WithLabelValues(rsp.Command()).Inc()
+				commandCountDetail.WithLabelValues(rsp.Command(), rsp.Args()).Inc()
 			}
 		}
 	}
 }
 
-func processRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp, maxkeysize int, latency time.Duration) {
-	rsp, err := NewRespReader(payload, sep, cleaner, maxkeysize)
+func parseRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp, maxkeysize int) (rsp *RespReader, err error) {
+	rsp, err = NewRespReader(payload, sep, cleaner, maxkeysize)
 	if err != nil {
-		log.Debug().Caller().Hex("payload", payload).Err(err).Msg("parse error")
-		return
+		return rsp, err
 	}
 
 	log.Debug().Hex("payload", payload).Msg("payload")
@@ -56,11 +69,5 @@ func processRespPacket(payload []byte, sep []byte, cleaner *regexp.Regexp, maxke
 		Float64("size", rsp.Size()).
 		Msg("received")
 
-	commandCount.WithLabelValues(rsp.Command()).Inc()
-	commandCountDetail.WithLabelValues(rsp.Command(), rsp.Args()).Inc()
-
-	if latency > -1 {
-		slowCommands.WithLabelValues(rsp.command, rsp.Args()).Observe(float64(latency))
-	}
-	//TODO: implement bandwidth traffic.
+	return rsp, err
 }

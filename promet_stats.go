@@ -25,8 +25,8 @@ var (
 		Help: "The total number of redis commands detail count",
 	}, []string{"command", "args"})
 
-	commandTrafficDetail = promauto.NewSummaryVec(prometheus.SummaryOpts{
-		Name: "redis_traffic_stats_command_detail_traffic",
+	bigCommands = promauto.NewSummaryVec(prometheus.SummaryOpts{
+		Name: "redis_traffic_stats_big_commands",
 		Help: "The total number of redis traffic bytes",
 	}, []string{"command", "args"})
 
