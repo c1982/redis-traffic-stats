@@ -63,7 +63,7 @@ func (c *RespReader) parse(sep []byte, cleaner *regexp.Regexp, maxsize int) erro
 			}
 		}
 
-		if len(argsindex) >= 1 {
+		if len(argsindex) >= 2 {
 			first := pp[argsindex[1]]
 			if len(first) > maxsize {
 				if maxsize > 0 {

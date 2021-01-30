@@ -20,6 +20,10 @@ type Durations struct {
 	list map[uint32]DurationItem
 }
 
+func NewDurations() *Durations {
+	return &Durations{list: make(map[uint32]DurationItem)}
+}
+
 func (d *Durations) Set(k uint32, command, args string) {
 	d.m.Lock()
 	defer d.m.Unlock()

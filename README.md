@@ -21,8 +21,8 @@ Features:
 
 - [x] Count commands and arguments  
 - [ ] Count network traffic of command
-- [ ] Monitor Slow commands
-- [ ] Monitor big response
+- [x] Monitor Slow commands
+- [x] Monitor big response
 
 ## Installation
 
@@ -51,6 +51,8 @@ password | **** | Prometheus metrics password
 s | empty | Separator of keys (for split). If it empty does not split keys.
 r | empty | Regex pattern of keys (for clean)
 max | 150 | Maximum lookup size of key. If value -1 unlimited lookup. 
+slow-response-threshold | 500 | threshold for recording slow response. Millisecond
+big-response-threshold | 1500 | threshold for recording slow response. Bytes
 
 ### Grafana Dashboard
 

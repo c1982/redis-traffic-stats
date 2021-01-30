@@ -19,8 +19,8 @@ func main() {
 		keyseparator         = flag.String("s", "", "Separator of keys (for split). If it empty does not split keys.")
 		keycleanerregex      = flag.String("r", "", "Regex pattern for cleaner in keys")
 		maxkeysizenumber     = flag.Int("max", 120, "Key size to be lookup")
-		slowresponsethresold = flag.Duration("slow-response-threshold", time.Millisecond*500, "")
-		bigresponsethreshold = flag.Int("big-response-threshold", 50000, "")
+		slowresponsethresold = flag.Duration("slow-response-threshold", time.Millisecond*500, "threshold for recording slow response. Millisecond")
+		bigresponsethreshold = flag.Int("big-response-threshold", 1500, "threshold for recording slow response. Bytes")
 	)
 
 	flag.Parse()
