@@ -84,7 +84,7 @@
             "title": "big responses",
             "tooltip": {
                 "shared": true,
-                "sort": 0,
+                "sort": 2,
                 "value_type": "individual"
             },
             "type": "graph",
@@ -184,7 +184,7 @@
             "title": "slow responses",
             "tooltip": {
                 "shared": true,
-                "sort": 0,
+                "sort": 2,
                 "value_type": "individual"
             },
             "type": "graph",
@@ -296,7 +296,7 @@
             "title": "command rates (rpm)",
             "tooltip": {
                 "shared": true,
-                "sort": 0,
+                "sort": 2,
                 "value_type": "individual"
             },
             "type": "graph",
@@ -418,7 +418,7 @@
             "title": "key rates (rpm)",
             "tooltip": {
                 "shared": true,
-                "sort": 0,
+                "sort": 2,
                 "value_type": "individual"
             },
             "type": "graph",
@@ -597,7 +597,7 @@
         "list": []
     },
     "time": {
-        "from": "now-5m",
+        "from": "now-1h",
         "to": "now"
     },
     "timepicker": {
@@ -616,5 +616,5 @@
     "timezone": "",
     "title": "Redis Stats",
     "uid": "DKKxh1-Gk",
-    "version": 8
+    "version": 12
 }
