@@ -37,7 +37,9 @@ Features:
 -s=: \
 -r="[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}" \
 --redisport=6379 \
---max=150
+--max=150 \
+--slow-response-threshold=20ms
+--snaplen=50000
 ```
 
 Flag | Default | Usage
@@ -53,10 +55,26 @@ r | empty | Regex pattern of keys (for clean)
 max | 150 | Maximum lookup size of key. If value -1 unlimited lookup. 
 slow-response-threshold | 500 | threshold for recording slow response. Millisecond
 big-response-threshold | 1500 | threshold for recording slow response. Bytes
+snap | 2048 | the maximum size to read for each packet (snaplen)
 
 ### Grafana Dashboard
 
 This easy way for dasboarding. You can upload to grafana [this](./grafana-dashboard.json) file.
+
+
+### Run test environment
+
+```bash
+docker-compose up
+```
+
+garafana:
+
+> http://localhost:3000/
+
+prometheus:
+
+> http://localhost:9090/
 
 ### Static Compilation
 

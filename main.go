@@ -21,6 +21,7 @@ func main() {
 		maxkeysizenumber     = flag.Int("max", 120, "Key size to be lookup")
 		slowresponsethresold = flag.Duration("slow-response-threshold", time.Millisecond*500, "threshold for recording slow response. Millisecond")
 		bigresponsethreshold = flag.Int("big-response-threshold", 1500, "threshold for recording slow response. Bytes")
+		snaplen              = flag.Int("snaplen", 2048, "the maximum size to read for each packet (snaplen)")
 	)
 
 	flag.Parse()
@@ -40,8 +41,7 @@ func main() {
 
 	go monitorRespPackets(*redisport, *keyseparator, *keycleanerregex, *maxkeysizenumber, *slowresponsethresold, *bigresponsethreshold)
 	go exportPrometheusMetrics(*exporteraddr, *exporterusername, *exporterpassword)
-
-	if err := StartMonitor(*devicename, uint16(*redisport)); err != nil {
+	if err := StartMonitor(*devicename, uint16(*redisport), int32(*snaplen)); err != nil {
 		panic(err)
 	}
 }
